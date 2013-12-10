@@ -8,7 +8,7 @@
         <input type='text' id='yourName' />
         <span id='output'></span>
         <br/>
-        <input type='button' id='send' value='calc' onclick='sendMessage();' />
+        <input type='button' id='send' value='calc' />
 			<script type="text/javascript">
 	$(document).ready(function(){
         var socket = io.connect('localhost',{port: 1001});
@@ -17,7 +17,6 @@
             console.log("Connected to the server");
         });
         socket.on('message',function(data) {
-        	debugger;
             $('#output').text(data);
         });
         socket.on('error', function (data) {
@@ -25,7 +24,7 @@
            }
         );
  		$('#send').click(function(){
- 			socket.send(2);
+ 			socket.send($('#yourName').val());
  		});
         
 	});
