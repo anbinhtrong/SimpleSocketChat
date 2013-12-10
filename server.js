@@ -16,7 +16,7 @@ socket.sockets.on('connection', function(socket){
 function broadcast(socket, message){
 	for(var i = 0; i < listSockets.length; i++){
 		if(listSockets[i] != socket){
-			socket.send(message);
+			listSockets[i].send(message);
 		}
 	}
 }
