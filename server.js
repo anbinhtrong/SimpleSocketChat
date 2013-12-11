@@ -5,7 +5,6 @@ socket.sockets.on('connection', function(socket){
 	listSockets.push(socket);
 	socket.on('message', function(data){
 		console.log(data);
-		//socket.send("data");
 		broadcast(socket, data);
 	});
 	socket.on('disconnect', function(){
