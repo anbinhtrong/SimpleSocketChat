@@ -15,7 +15,7 @@
                 <div class="row">
                     <form name="chatForm">
                         <div class='col-md-8 col-md-offset-2'>
-                            <input type='text' id='yourMessage' pressEnter class="form-control" ng-model="yourMessage" />
+                            <input type='text' id='yourMessage' ng-enter="sendMessage()" class="form-control" ng-model="yourMessage" />
                         </div>
                         <div class='col-md-2'>                    
                             <input type='button' class="btn btn-primary" value='Gửi' ng-click="sendMessage()" />
@@ -31,28 +31,24 @@
                     </div>
                 </div>
             </div>            
-        </div>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        </div>        
+        <script src="Scripts/jquery-2.0.3.js"></script>
         <script src="Scripts/angular.min.js"></script>
         <script src="Content/bootstrap/js/bootstrap.min.js"></script> 
         <script src="http://localhost:1001/socket.io/socket.io.js"></script>
 		<script type="text/javascript">
-            var mainModule = angular.module('mainModule', [])
-                .directive('pressEnter', function(){
-                return {
-                    restrict: 'A', 
-                    link: function($scope, iElm, iAttrs, controller) {
-                    	console.log('hi');
-                        $(function(){
-                            debugger;
-                            /*iElm.keypress(function (event) {
-                                if (event.which == 13) {
-                                    //event.preventDefault();
-                                    $scope.sendMessage();
-                                }
-                            });*/
-                        });                        
-                    }
+            var mainModule = angular.module('mainModule', []);
+            mainModule.directive('ngEnter', function () {
+                return function (scope, element, attrs) {
+                    element.bind("keydown keypress", function (event) {
+                        if(event.which === 13) {
+                            scope.$apply(function (){
+                                scope.$eval(attrs.ngEnter);
+                            });
+
+                            event.preventDefault();
+                        }
+                    });
                 };
             });
             mainModule.controller('homeCtrl', ["$scope", function($scope){
