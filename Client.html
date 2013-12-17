@@ -60,7 +60,7 @@
                 });
                 socket.on('message',function(data) {
                     $scope.$apply(function(){
-                        $scope.messages =  data  + '<br />' + $scope.messages;
+                        $scope.messages =  $scope.messages  + '<br />' + data;
                         console.log(data);
                     });                    
                 });
@@ -72,12 +72,9 @@
                     socket.send($scope.yourMessage);
                     $scope.yourMessage = "";
                 }
-                $('#searchText').keypress(function (event) {
-                    if (event.which == 13) {
-                        event.preventDefault();
-                        $.submitForm('http://www.google.com', $('#cse-search-box :input').serializeArray(), "get");
-                    }
-                });
+                $scope.sendYourName = function(){
+                    socket.emit('getClientName', $scope.yourName);
+                };                
             }]);
     </script>
     </body>

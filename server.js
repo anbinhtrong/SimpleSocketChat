@@ -9,6 +9,9 @@ socket.sockets.on('connection', function(socket){
 		console.log(data);
 		broadcast(socket, data);
 	});
+	socket.on('getClientName', function(data){
+		socket.name = data;
+	});
 	socket.on('disconnect', function(){
 		listSockets.splice(listSockets.indexOf(socket), 1);
 	});
@@ -19,6 +22,6 @@ function broadcast(socket, message){
 //		if(listSockets[i].id != socket.id){
 //			listSockets[i].send(message);
 //		}
-		listSockets[i].send(message);
+		listSockets[i].send(socket.name + ": " + message);
 	}
 }
