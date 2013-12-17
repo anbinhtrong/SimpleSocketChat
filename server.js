@@ -1,8 +1,10 @@
 var io = require('socket.io');
 var listSockets = [];
+var listSocketInfo;
 var socket = io.listen(1001);
 socket.sockets.on('connection', function(socket){
 	listSockets.push(socket);
+	//listSockets[socket.id] = socket;
 	socket.on('message', function(data){
 		console.log(data);
 		broadcast(socket, data);
@@ -14,8 +16,9 @@ socket.sockets.on('connection', function(socket){
 
 function broadcast(socket, message){
 	for(var i = 0; i < listSockets.length; i++){
-		if(listSockets[i] != socket){
-			listSockets[i].send(message);
-		}
+//		if(listSockets[i].id != socket.id){
+//			listSockets[i].send(message);
+//		}
+		listSockets[i].send(message);
 	}
 }

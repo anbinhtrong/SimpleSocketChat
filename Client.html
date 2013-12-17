@@ -1,34 +1,88 @@
 <html>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<head>
-	<title>WebSocket Client</title>
- 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-	<script src="http://localhost:1001/socket.io/socket.io.js"></script>
+        <title>WebSocket Client</title>
+        <link href="Content/bootstrap/css/bootstrap.css" rel="stylesheet" />
     </head>
     <body>
-        <input type='text' id='yourName' />
-        <span id='output'></span>
-        <br/>
-        <input type='button' id='send' value='Gửi' />
-			<script type="text/javascript">
-	$(document).ready(function(){
-        var socket = io.connect('localhost',{port: 1001});
- 
-        socket.on("connect",function(){
-            console.log("Connected to the server");
-        });
-        socket.on('message',function(data) {
-            $('#output').text(data);
-        });
-        socket.on('error', function (data) {
-            console.log("error:",data);
-           }
-        );
- 		$('#send').click(function(){
- 			socket.send($('#yourName').val());
- 		});
-        
-	});
+        <div class="container" ng-app="mainModule" ng-controller="homeCtrl">
+            <div class="row" style="margin-top: 3em;">
+                <div class="row">
+                    <div class='col-md-10 col-md-offset-2'>
+                        <span id='output' style="display: inline-block; height: 80%;" ng-bind-html-unsafe="messages"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <form name="chatForm">
+                        <div class='col-md-8 col-md-offset-2'>
+                            <input type='text' id='yourMessage' pressEnter class="form-control" ng-model="yourMessage" />
+                        </div>
+                        <div class='col-md-2'>                    
+                            <input type='button' class="btn btn-primary" value='Gửi' ng-click="sendMessage()" />
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class='col-md-4 col-md-offset-2'>
+                        <input type='text' class="form-control" ng-model="yourName" />
+                    </div>
+                    <div class='col-md-2'>                    
+                        <input type='button' class="btn btn-primary" value='Send your name' ng-click="sendYourName()" />
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="Scripts/angular.min.js"></script>
+        <script src="Content/bootstrap/js/bootstrap.min.js"></script> 
+        <script src="http://localhost:1001/socket.io/socket.io.js"></script>
+		<script type="text/javascript">
+            var mainModule = angular.module('mainModule', [])
+                .directive('pressEnter', function(){
+                return {
+                    restrict: 'A', 
+                    link: function($scope, iElm, iAttrs, controller) {
+                    	console.log('hi');
+                        $(function(){
+                            debugger;
+                            /*iElm.keypress(function (event) {
+                                if (event.which == 13) {
+                                    //event.preventDefault();
+                                    $scope.sendMessage();
+                                }
+                            });*/
+                        });                        
+                    }
+                };
+            });
+            mainModule.controller('homeCtrl', ["$scope", function($scope){
+                $scope.messages = '';
+                var socket = io.connect('localhost', {port: 1001});
+         
+                socket.on("connect",function(){
+                    console.log("Connected to the server");
+                });
+                socket.on('message',function(data) {
+                    $scope.$apply(function(){
+                        $scope.messages =  data  + '<br />' + $scope.messages;
+                        console.log(data);
+                    });                    
+                });
+                socket.on('error', function (data) {
+                    console.log("error:",data);
+                   }
+                );
+                $scope.sendMessage = function(){                    
+                    socket.send($scope.yourMessage);
+                    $scope.yourMessage = "";
+                }
+                $('#searchText').keypress(function (event) {
+                    if (event.which == 13) {
+                        event.preventDefault();
+                        $.submitForm('http://www.google.com', $('#cse-search-box :input').serializeArray(), "get");
+                    }
+                });
+            }]);
     </script>
     </body>
 </html>
