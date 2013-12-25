@@ -7,12 +7,17 @@
     <body>
         <div class="container" ng-app="mainModule" ng-controller="homeCtrl">
             <div class="row" style="margin-top: 3em;">
-                <div class="row">
-                    <div class='col-md-10 col-md-offset-2'>
+                <div class="row" ng-show="showMessageChat">
+                    <div class="col-md-2">
+                        <div ng-repeat="person in listPeople">
+                            <div ng-click="sendToPerson(person.id)">{{person.name}}</div>
+                        </div>
+                    </div>
+                    <div class='col-md-10'>
                         <span id='output' style="display: inline-block; height: 80%;" ng-bind-html-unsafe="messages"></span>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" ng-show="showMessageChat">
                     <form name="chatForm">
                         <div class='col-md-8 col-md-offset-2'>
                             <input type='text' id='yourMessage' ng-enter="sendMessage()" class="form-control" ng-model="yourMessage" />
@@ -22,12 +27,12 @@
                         </div>
                     </form>
                 </div>
-                <div class="row">
+                <div class="row" ng-show="!showMessageChat">
                     <div class='col-md-4 col-md-offset-2'>
                         <input type='text' class="form-control" ng-model="yourName" />
                     </div>
                     <div class='col-md-2'>                    
-                        <input type='button' class="btn btn-primary" value='Send your name' ng-click="sendYourName()" />
+                        <input type='button' class="btn btn-primary" value='Connect' ng-click="sendYourName()" />
                     </div>
                 </div>
             </div>            
@@ -53,9 +58,12 @@
             });
             mainModule.controller('homeCtrl', ["$scope", function($scope){
                 $scope.messages = '';
+                $scope.listPeople = [];
+                $scope.to = {};
+                $scope.showMessageChat = false;
                 var socket = io.connect('localhost', {port: 1001});
          
-                socket.on("connect",function(){
+                socket.on("connect",function(){                    
                     console.log("Connected to the server");
                 });
                 socket.on('message',function(data) {
@@ -68,13 +76,43 @@
                     console.log("error:",data);
                    }
                 );
+
+                socket.on('notifyWhoOnline', function(data){                    
+                    //data = JSON.parse(data);
+                    $scope.$apply(function(){
+                        $scope.listPeople.length = 0;
+                        var id = socket.socket.sessionid;
+                        for(var i = 0; i < data.socketList.length; i++){
+                            if(data.socketList[i].socketId != id){
+                                $scope.listPeople.push(data.socketList[i]);
+                            }
+                        }
+                        //$scope.listPeople = data.socketList;
+                        debugger;
+                    });
+                });
                 $scope.sendMessage = function(){                    
-                    socket.send($scope.yourMessage);
+                    //socket.send($scope.yourMessage);
+                    //socket.send(serializeMessage($scope.yourMessage));
+                    socket.emit('message', serializeMessage($scope.yourMessage));
                     $scope.yourMessage = "";
                 }
                 $scope.sendYourName = function(){
                     socket.emit('getClientName', $scope.yourName);
-                };                
+                    $scope.showMessageChat = true;
+                };
+
+                $scope.sendToPerson = function(personId){
+                    $scope.to = {
+                        to: "person",
+                        receiver: personId                        
+                    };                    
+                }
+
+                function serializeMessage(message){
+                    //return {"to": $scope.to.to, "receiver": $scope.to.receiver, "message": message};
+                    return JSON.stringify({"to": $scope.to.to, "receiver": $scope.to.receiver, "message": message});
+                }                            
             }]);
     </script>
     </body>
