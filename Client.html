@@ -9,12 +9,14 @@
             <div class="row" style="margin-top: 3em;">
                 <div class="row" ng-show="showMessageChat">
                     <div class="col-md-2">
-                        <div ng-repeat="person in listPeople">
-                            <div ng-click="sendToPerson(person.id)">{{person.name}}</div>
-                        </div>
+                        <ul class="nav nav-pills nav-stacked" ng-repeat="person in listPeople">
+                            <li ng-click="sendToPerson(person)" ng-class="active: person.socketId == to.receiver"><a href="javascript:void(0)">{{person.name}}</a></li>
+                        </ul>
                     </div>
                     <div class='col-md-10'>
-                        <span id='output' style="display: inline-block; height: 80%;" ng-bind-html-unsafe="messages"></span>
+                        <h3>{{to.name}}</h3>
+                        <hr />
+                        <span id='output' style="display: inline-block; height: 80%; word-wrap: break-word;" ng-bind-html-unsafe="messages"></span>
                     </div>
                 </div>
                 <div class="row" ng-show="showMessageChat">
@@ -59,6 +61,10 @@
             mainModule.controller('homeCtrl', ["$scope", function($scope){
                 $scope.messages = '';
                 $scope.listPeople = [];
+                $scope.friendChat = {
+                    isInRoom: false
+
+                };
                 $scope.to = {};
                 $scope.showMessageChat = false;
                 var socket = io.connect('localhost', {port: 1001});
@@ -102,10 +108,11 @@
                     $scope.showMessageChat = true;
                 };
 
-                $scope.sendToPerson = function(personId){
+                $scope.sendToPerson = function(person){
                     $scope.to = {
                         to: "person",
-                        receiver: personId                        
+                        name: person.name,
+                        receiver: person.socketId                        
                     };                    
                 }
 
